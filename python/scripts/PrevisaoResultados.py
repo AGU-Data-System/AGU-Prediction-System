@@ -13,30 +13,44 @@ import numpy as np
 import pandas as pd
 
 
-def MediaMovel(df, tmin, tmax):
-    MA = []
-    for i in range(len(df)):
-        if i >= abs(tmin):
-            media = df.iloc[i + tmin:i + tmax + 1]['Consumo'].mean()
+def media_movel(df, tmin, tmax):
+    """
+    Calculate the moving average of the 'Consumption' column over a specified window.
+
+    :param df: DataFrame containing the data.
+    :param tmin: Minimum time offset for the moving average window.
+    :param tmax: Maximum time offset for the moving average window.
+    :return: List of moving average values.
+    """
+    ma = []
+    for idx in range(len(df)):
+        if idx >= abs(tmin):
+            media = df.iloc[idx + tmin:idx + tmax + 1]['Consumption'].mean()
         else:
             media = None
-        MA.append(media)
+        ma.append(media)
 
-    return MA
+    return ma
 
 
-def DayType(df):
+def day_type(df):
+    """
+    Identify the type of each day (0 for regular days, 1 for holidays and weekends).
+
+    :param df: DataFrame containing the data.
+    :return: List indicating the type of each day.
+    """
     lista = [0] * len(df)
-    feriados = ["2023-01-01", "2023-04-25", "2023-05-01", "2023-06-10", "2023-08-15", "2023-10-05", "2023-11-01",
-                "2023-12-01", "2023-12-08", "2023-12-25"]
+    holly_days = ["2023-01-01", "2023-04-25", "2023-05-01", "2023-06-10", "2023-08-15", "2023-10-05", "2023-11-01",
+                  "2023-12-01", "2023-12-08", "2023-12-25"]
     k = 0
-    for i in range(df.index[0], df.index[-1]):
-        data_str = df.loc[i, 'Data'].strftime("%Y-%m-%d")
+    for idx in range(df.index[0], df.index[-1]):
+        data_str = df.loc[idx, 'Data'].strftime("%Y-%m-%d")
         data = datetime.strptime(data_str, "%Y-%m-%d")
-        for j in feriados:
-            feriado = datetime.strptime(j, "%Y-%m-%d")
-            if data.month == feriado.month and data.day == feriado.day:
-                lista[k] = 1;
+        for j in holly_days:
+            holly_day = datetime.strptime(j, "%Y-%m-%d")
+            if data.month == holly_day.month and data.day == holly_day.day:
+                lista[k] = 1
                 break
 
             if data.weekday() == 5 or data.weekday() == 6:
@@ -82,7 +96,7 @@ print("test")
 
 df = pd.DataFrame({
     'Data': [None] * size,
-    'Consumo': [None] * size,
+    'Consumption': [None] * size,
     'MA_3a5': [None] * size,
     'MA_3a9': [None] * size,
     'DayType': [None] * size,
@@ -93,21 +107,21 @@ df = pd.DataFrame({
 df
 
 for i in range(8):
-    df.at[i, 'Consumo'] = consumption_values[i]
+    df.at[i, 'Consumption'] = consumption_values[i]
     df.at[i, 'Data'] = consumption_dates[i]
 for i in range(9, size):
     df.at[i, 'Data'] = temperature_dates[i - 9]
     df.at[i, 'Tmin'] = temperature_min_values[i - 9]
     df.at[i, 'Tmax'] = temperature_max_values[i - 9]
 
-df['DayType'] = DayType(df)
+df['DayType'] = day_type(df)
 df
 
-for i in range(9, size):  # substituir pelo frame futuro correto
-    df.at[i, 'MA_3a9'] = MediaMovel(df, -9, -3)[i]
-    df.at[i, 'Consumo'] = intercept + np.dot(coefs, df.iloc[i, 3:])
+for i in range(9, size):  # replace this with the right data frame
+    df.at[i, 'MA_3a9'] = media_movel(df, -9, -3)[i]
+    df.at[i, 'Consumption'] = intercept + np.dot(coefs, df.iloc[i, 3:])
 df
 
-previsão = df[['Data', 'Consumo']][9:]
-previsão['Data'] = previsão['Data'].astype(str).str.strip("T").str[:10]
-print(previsão.to_json(orient='records', date_format='iso'))
+prediction = df[['Data', 'Consumption']][9:]
+prediction['Data'] = prediction['Data'].astype(str).str.strip("T").str[:10]
+print(prediction.to_json(orient='records', date_format='iso'))
