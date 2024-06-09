@@ -121,20 +121,20 @@ def preprocess_data(temperatures_data, consumptions_data, size):
     return df
 
 
-def update_moving_avg_and_predictions(df, intercept, coefs, size):
+def update_moving_avg_and_predictions(df, intercept, coefficients, size):
     """
     Update the DataFrame with moving averages and predictions.
 
     :param df: DataFrame containing the data.
     :param intercept: Intercept value for the linear regression model.
-    :param coefs: Coefficients for the linear regression model.
+    :param coefficients: Coefficients for the linear regression model.
     :param size: Size of the DataFrame.
     :return: Updated DataFrame with predictions.
     """
     df[DataFrameColumns.DAY_TYPE.value] = day_type(df)
     for i in range(9, size):
         df.at[i, DataFrameColumns.MA_3A9.value] = moving_avg(df, -9, -3)[i]
-        df.at[i, DataFrameColumns.CONSUMPTION.value] = intercept + np.dot(coefs, df.iloc[i, 3:])
+        df.at[i, DataFrameColumns.CONSUMPTION.value] = intercept + np.dot(coefficients, df.iloc[i, 3:])
     return df
 
 
@@ -144,16 +144,16 @@ def main():
     """
     temperatures_json = sys.argv[1]
     consumptions_json = sys.argv[2]
-    coefs_array_string = sys.argv[3]
+    coefficients_array_string = sys.argv[3]
     intercept = float(sys.argv[4])
 
-    coefs_array_string = coefs_array_string.strip('[]')
-    coefs = np.fromstring(coefs_array_string, dtype=float, sep=',')
+    coefficients_array_string = coefficients_array_string.strip('[]')
+    coefficients = np.fromstring(coefficients_array_string, dtype=float, sep=',')
 
     size = 9 + 5
     temperatures_data, consumptions_data = load_data(temperatures_json, consumptions_json)
     df = preprocess_data(temperatures_data, consumptions_data, size)
-    df = update_moving_avg_and_predictions(df, intercept, coefs, size)
+    df = update_moving_avg_and_predictions(df, intercept, coefficients, size)
 
     prediction = df[[DataFrameColumns.DATE.value, DataFrameColumns.CONSUMPTION.value]][9:]
     prediction[DataFrameColumns.DATE.value] = prediction[DataFrameColumns.DATE.value].astype(str).str.strip("T").str[
