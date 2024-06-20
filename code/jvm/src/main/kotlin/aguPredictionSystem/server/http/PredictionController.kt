@@ -2,6 +2,7 @@ package aguPredictionSystem.server.http
 
 import aguPredictionSystem.server.InvokeScripts.invokePredictionAlgorithm
 import aguPredictionSystem.server.http.models.PredictionInputModel
+import aguPredictionSystem.server.http.models.PredictionOutputModel
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -28,6 +29,6 @@ class PredictionController {
 			predictionInputModel.coefficients,
 			predictionInputModel.intercept
 		)
-		return ResponseEntity.ok(result)
+		return ResponseEntity.ok(PredictionOutputModel(result))
 	}
 }

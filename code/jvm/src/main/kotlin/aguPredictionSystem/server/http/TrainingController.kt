@@ -2,6 +2,7 @@ package aguPredictionSystem.server.http
 
 import aguPredictionSystem.server.InvokeScripts.invokeTrainingAlgorithm
 import aguPredictionSystem.server.http.models.TrainingInputModel
+import aguPredictionSystem.server.http.models.TrainingOutputModel
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -27,6 +28,6 @@ class TrainingController {
 			trainingInputModel.temperatures
 		)
 
-		return ResponseEntity.ok(result)
+		return ResponseEntity.ok(TrainingOutputModel(result))
 	}
 }
