@@ -46,18 +46,33 @@ def moving_avg(df, t_min, t_max):
     return ma
 
 
-def day_type(df):
+def load_file(file_path):
+    """
+    Loads the content from a file.
+
+    :param file_path: The path to the file.
+
+    :return: A list representing the content of the file as strings.
+    """
+    content = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            treated_line = line.strip()
+            if treated_line:  # Make sure it's not an empty line
+                content.append(treated_line)
+    return content
+
+
+def day_type(df, path):
     """
     Identify the type of each day (0 for regular days, 1 for holidays and weekends).
 
+    :param path: Path to the file containing the list of holidays.
     :param df: DataFrame containing the data.
     :return: List indicating the type of each day.
     """
     lista = [0] * len(df)
-    holly_days = [
-        "2023-01-01", "2023-04-25", "2023-05-01", "2023-06-10", "2023-08-15",
-        "2023-10-05", "2023-11-01", "2023-12-01", "2023-12-08", "2023-12-25"
-    ]
+    holly_days = load_file(path)
     for k, idx in enumerate(df.index):
         data_str = df.loc[idx, DataFrameColumns.DATE.value].strftime("%Y-%m-%d")
         data = datetime.strptime(data_str, "%Y-%m-%d")
@@ -121,17 +136,18 @@ def preprocess_data(temperatures_data, consumptions_data, size):
     return df
 
 
-def update_moving_avg_and_predictions(df, intercept, coefficients, size):
+def update_moving_avg_and_predictions(df, intercept, coefficients, size, path):
     """
     Update the DataFrame with moving averages and predictions.
 
+    :param path: Path to the file containing the list of holidays.
     :param df: DataFrame containing the data.
     :param intercept: Intercept value for the linear regression model.
     :param coefficients: Coefficients for the linear regression model.
     :param size: Size of the DataFrame.
     :return: Updated DataFrame with predictions.
     """
-    df[DataFrameColumns.DAY_TYPE.value] = day_type(df)
+    df[DataFrameColumns.DAY_TYPE.value] = day_type(df, path)
     for i in range(9, size):
         df.at[i, DataFrameColumns.MA_3A9.value] = moving_avg(df, -9, -3)[i]
         df.at[i, DataFrameColumns.CONSUMPTION.value] = intercept + np.dot(coefficients, df.iloc[i, 3:])
@@ -146,6 +162,7 @@ def main():
     consumptions_json = sys.argv[2]
     coefficients_array_string = sys.argv[3]
     intercept = float(sys.argv[4])
+    holiday_file_path = 'data/holidays.txt'
 
     coefficients_array_string = coefficients_array_string.strip('[]')
     coefficients = np.fromstring(coefficients_array_string, dtype=float, sep=',')
@@ -153,7 +170,7 @@ def main():
     size = 9 + 5
     temperatures_data, consumptions_data = load_data(temperatures_json, consumptions_json)
     df = preprocess_data(temperatures_data, consumptions_data, size)
-    df = update_moving_avg_and_predictions(df, intercept, coefficients, size)
+    df = update_moving_avg_and_predictions(df, intercept, coefficients, size, holiday_file_path)
 
     prediction = df[[DataFrameColumns.DATE.value, DataFrameColumns.CONSUMPTION.value]][9:]
     prediction[DataFrameColumns.DATE.value] = prediction[DataFrameColumns.DATE.value].astype(str).str.strip("T").str[

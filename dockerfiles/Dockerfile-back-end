@@ -1,0 +1,71 @@
+### Kotlin Spring Boot application
+# 1st stage - Cache image
+# sets up the build environment and copies the build.gradle file
+ARG DEPENDENCY=./code/jvm
+ARG PYTHON_DEPENDENCY=./code/python/scripts
+ARG APP_HOME=/usr/app
+
+FROM gradle:jdk17 AS CACHE_IMAGE
+ARG DEPENDENCY
+ARG APP_HOME
+ENV GRADLE_USER_HOME=$APP_HOME/.gradle
+
+RUN mkdir -p $APP_HOME
+COPY $DEPENDENCY/build.gradle.kts $APP_HOME
+WORKDIR $APP_HOME
+RUN gradle --no-daemon
+
+# 2nd stage - Builder image
+# copies the source code and builds the application
+FROM gradle:jdk17 AS BUILDER_IMAGE
+ARG DEPENDENCY
+ARG APP_HOME
+ENV GRADLE_USER_HOME=$APP_HOME/.gradle
+COPY --from=CACHE_IMAGE $APP_HOME/.gradle $APP_HOME/.gradle
+
+COPY $DEPENDENCY/settings.gradle.kts $APP_HOME
+COPY $DEPENDENCY/build.gradle.kts $APP_HOME
+COPY $DEPENDENCY/src $APP_HOME/src
+
+WORKDIR $APP_HOME
+
+RUN gradle bootJar --no-daemon
+
+# 3rd stage - Python environment setup
+FROM python:3.11.4-slim-buster AS PYTHON_IMAGE
+ARG PYTHON_DEPENDENCY
+ARG APP_HOME
+
+# Install the required system packages, including the missing libbz2 library
+RUN apt-get update && apt-get install -y libbz2-dev
+
+# Set the working directory inside the container
+WORKDIR $APP_HOME
+
+# Copy the python scripts and requirements.txt
+COPY $PYTHON_DEPENDENCY/ $APP_HOME/scripts/
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir -r $APP_HOME/scripts/requirements.txt
+
+# 4th stage - Runtime image
+# copies the built jar file, sets up the Python environment, and runs the application
+FROM openjdk:17-jdk-slim
+ENV ARTIFACT_NAME=AGUPredictionSystem-0.0.1-SNAPSHOT.jar
+ARG APP_HOME
+
+WORKDIR $APP_HOME
+
+# Copy the built JAR file from the builder stage
+COPY --from=BUILDER_IMAGE $APP_HOME/build/libs/$ARTIFACT_NAME $APP_HOME/$ARTIFACT_NAME
+
+# Copy the installed Python dependencies and libraries from the Python image
+COPY --from=PYTHON_IMAGE /usr/local /usr/local
+
+# Copy the Python scripts from the Python image
+COPY --from=PYTHON_IMAGE $APP_HOME/scripts $APP_HOME/scripts
+
+EXPOSE 8080
+
+# Set the entrypoint command to run the Spring Boot application
+ENTRYPOINT ["java", "-jar", "$APP_HOME/$ARTIFACT_NAME"]

@@ -42,19 +42,34 @@ def calculate_moving_avg(d_frame, t_min, t_max):
     return ma
 
 
-def determine_day_type(d_frame):
+def load_file(file_path):
+    """
+    Loads the content from a file.
+
+    :param file_path: The path to the file.
+
+    :return: A list representing the content of the file as strings.
+    """
+    content = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            treated_line = line.strip()
+            if treated_line:  # Make sure it's not an empty line
+                content.append(treated_line)
+    return content
+
+
+def determine_day_type(d_frame, path):
     """
     Determine the type of day (weekend or holiday).
 
+    :param path: Path for the holiday file.
     :param d_frame: DataFrame containing the data.
 
     :return: A list indicating the type of day (1 for weekend/holiday, 0 for weekday).
     """
     lista = [0] * len(d_frame)
-    holly_days = [
-        "2023-01-01", "2023-04-25", "2023-05-01", "2023-06-10", "2023-08-15",
-        "2023-10-05", "2023-11-01", "2023-12-01", "2023-12-08", "2023-12-25"
-    ]
+    holly_days = load_file(path)
     for k, idx in enumerate(d_frame.index):
         data_str = d_frame.loc[idx, DataFrameColumns.DATE.value].strftime("%Y-%m-%d")
         data = datetime.strptime(data_str, "%Y-%m-%d")
@@ -84,10 +99,11 @@ def load_data_from_json(temperature_json, consumption_json):
     return temperatures, consumptions
 
 
-def preprocess_data(temperatures, consumptions):
+def preprocess_data(temperatures, consumptions, path):
     """
     Preprocess the data: calculate moving averages, determine day types, and merge data.
 
+    :param path: Path for the holiday file.
     :param temperatures: DataFrame containing temperature data.
     :param consumptions: DataFrame containing consumption data.
 
@@ -98,7 +114,7 @@ def preprocess_data(temperatures, consumptions):
 
     df[DataFrameColumns.MA_3A5.value] = calculate_moving_avg(df, -5, -2)
     df[DataFrameColumns.MA_3A9.value] = calculate_moving_avg(df, -9, -2)
-    df[DataFrameColumns.DAY_TYPE.value] = determine_day_type(df)
+    df[DataFrameColumns.DAY_TYPE.value] = determine_day_type(df, path)
 
     df[DataFrameColumns.T_MIN.value] = df_temp[DataFrameColumns.T_MIN.value]
     df[DataFrameColumns.T_MAX.value] = df_temp[DataFrameColumns.T_MAX.value]
@@ -136,9 +152,10 @@ def main():
     """
     temperature_json = sys.argv[1]
     consumption_json = sys.argv[2]
+    holidays_file_path = 'data/holidays.txt'
 
     temperatures, consumptions = load_data_from_json(temperature_json, consumption_json)
-    df = preprocess_data(temperatures, consumptions)
+    df = preprocess_data(temperatures, consumptions, holidays_file_path)
     result = perform_regression(df)
 
     result_json = json.dumps(result)
