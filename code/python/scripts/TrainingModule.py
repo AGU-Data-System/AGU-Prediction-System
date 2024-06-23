@@ -152,7 +152,7 @@ def main():
     """
     temperature_json = sys.argv[1]
     consumption_json = sys.argv[2]
-    holidays_file_path = 'data/holidays.txt'
+    holidays_file_path = 'holidays.txt'
 
     temperatures, consumptions = load_data_from_json(temperature_json, consumption_json)
     df = preprocess_data(temperatures, consumptions, holidays_file_path)

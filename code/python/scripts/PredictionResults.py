@@ -162,7 +162,7 @@ def main():
     consumptions_json = sys.argv[2]
     coefficients_array_string = sys.argv[3]
     intercept = float(sys.argv[4])
-    holiday_file_path = 'data/holidays.txt'
+    holiday_file_path = 'holidays.txt'
 
     coefficients_array_string = coefficients_array_string.strip('[]')
     coefficients = np.fromstring(coefficients_array_string, dtype=float, sep=',')
