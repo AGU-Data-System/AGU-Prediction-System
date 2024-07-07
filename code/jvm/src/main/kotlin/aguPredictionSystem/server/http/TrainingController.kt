@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * Controller for the training endpoint.
  */
-@RestController(URIs.TRAIN)
+@RestController
 class TrainingController {
 
 	/**
 	 * Generates a training for the given AGU.
 	 */
-	@PostMapping(URIs.BY_ID)
+	@PostMapping(URIs.Train.BY_ID)
 	fun generateTraining(
 		@PathVariable aguCui: String,
 		@RequestBody trainingInputModel: TrainingInputModel

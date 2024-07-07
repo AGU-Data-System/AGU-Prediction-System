@@ -1,8 +1,15 @@
 package aguPredictionSystem.server.http
 
 object URIs {
+	const val PREFIX = "/api"
 
-	const val PREDICT = "/predict"
-	const val TRAIN = "/train"
-	const val BY_ID = "/{aguCui}"
+	object Train {
+		private const val ROOT = "$PREFIX/train"
+		const val BY_ID = "$ROOT/{aguCui}"
+	}
+
+	object Predict {
+		const val ROOT = "$PREFIX/predict"
+		const val BY_ID = "$ROOT/{aguCui}"
+	}
 }

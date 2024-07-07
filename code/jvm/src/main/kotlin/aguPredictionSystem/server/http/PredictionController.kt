@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * Controller for the prediction endpoint.
  */
-@RestController(URIs.PREDICT)
+@RestController
 class PredictionController {
 
 	/**
 	 * Generates a prediction for the given AGU.
 	 */
-	@PostMapping(URIs.BY_ID)
+	@PostMapping(URIs.Predict.BY_ID)
 	fun generatePrediction(
 		@PathVariable aguCui: String,
 		@RequestBody predictionInputModel: PredictionInputModel

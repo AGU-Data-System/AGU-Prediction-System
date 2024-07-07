@@ -43,7 +43,7 @@ RUN apt-get update && apt-get install -y libbz2-dev
 WORKDIR $APP_HOME
 
 # Copy the python scripts and requirements.txt
-COPY $PYTHON_DEPENDENCY/ $APP_HOME/scripts/
+COPY $PYTHON_DEPENDENCY $APP_HOME/scripts/
 
 # Install Python dependencies
 RUN pip3 install --no-cache-dir -r $APP_HOME/scripts/requirements.txt
@@ -57,7 +57,7 @@ ARG APP_HOME
 WORKDIR $APP_HOME
 
 # Copy the built JAR file from the builder stage
-COPY --from=BUILDER_IMAGE $APP_HOME/build/libs/$ARTIFACT_NAME $APP_HOME/$ARTIFACT_NAME
+COPY --from=BUILDER_IMAGE $APP_HOME/build/libs/$ARTIFACT_NAME .
 
 # Copy the installed Python dependencies and libraries from the Python image
 COPY --from=PYTHON_IMAGE /usr/local /usr/local
@@ -68,4 +68,4 @@ COPY --from=PYTHON_IMAGE $APP_HOME/scripts $APP_HOME/scripts
 EXPOSE 8080
 
 # Set the entrypoint command to run the Spring Boot application
-ENTRYPOINT ["java", "-jar", "$APP_HOME/$ARTIFACT_NAME"]
+ENTRYPOINT exec java -jar ${ARTIFACT_NAME}
