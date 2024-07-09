@@ -1,15 +1,22 @@
 package aguPredictionSystem.server.http
 
+/**
+ * Contains the URIs for the API
+ */
 object URIs {
 	const val PREFIX = "/api"
 
+	/**
+	 * Contains the URIs for the train endpoints
+	 */
 	object Train {
-		private const val ROOT = "$PREFIX/train"
-		const val BY_ID = "$ROOT/{aguCui}"
+		const val ROOT = "$PREFIX/train"
 	}
 
-	object Predict {
+	/**
+	 * Contains the URIs for the prediction endpoints
+	 */
+	object Prediction {
 		const val ROOT = "$PREFIX/predict"
-		const val BY_ID = "$ROOT/{aguCui}"
 	}
 }

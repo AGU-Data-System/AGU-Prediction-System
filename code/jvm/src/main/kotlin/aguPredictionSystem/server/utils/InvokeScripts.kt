@@ -1,11 +1,15 @@
-package aguPredictionSystem.server
+package aguPredictionSystem.server.utils
 
+import aguPredictionSystem.server.Environment
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import org.slf4j.LoggerFactory
 
 object InvokeScripts {
 
-	private val BASE_SCRIPTS_PATH = Environment.getPythonScriptPath() ?: "/../code/python/scripts"
+	private const val PYTHON_COMMAND = "python"
+	private val BASE_SCRIPTS_PATH = Environment.getPythonScriptPath()
+	private val logger = LoggerFactory.getLogger(InvokeScripts::class.java)
 
 	/**
 	 * Invokes the training algorithm.
@@ -17,7 +21,7 @@ object InvokeScripts {
 	fun invokeTrainingAlgorithm(temperatures: String, consumptions: String): String {
 		val pythonScript = "$BASE_SCRIPTS_PATH/TrainingModule.py"
 
-		val processBuilder = ProcessBuilder("python", pythonScript, temperatures, consumptions)
+		val processBuilder = ProcessBuilder(PYTHON_COMMAND, pythonScript, temperatures, consumptions)
 
 		processBuilder.redirectErrorStream(true)
 		val process = processBuilder.start()
@@ -31,9 +35,9 @@ object InvokeScripts {
 
 		val exitCode = process.waitFor()
 		if (exitCode == 0) {
-			println("Python script executed successfully.")
+			logger.info("Python training script executed successfully.")
 		} else {
-			println("Python script encountered an error. Exit code: $exitCode")
+			logger.error("Python training script encountered an error. Exit code: {}", exitCode)
 		}
 
 		return lastLine ?: "{}"
@@ -57,7 +61,7 @@ object InvokeScripts {
 		val pythonScript = "$BASE_SCRIPTS_PATH/PredictionResults.py"
 
 		val processBuilder = ProcessBuilder(
-			"python",
+			PYTHON_COMMAND,
 			pythonScript,
 			temperatures,
 			consumptions,
@@ -78,9 +82,9 @@ object InvokeScripts {
 
 		val exitCode = process.waitFor()
 		if (exitCode == 0) {
-			println("Python script executed successfully.")
+			logger.info("Python prediction script executed successfully.")
 		} else {
-			println("Python script encountered an error. Exit code: $exitCode")
+			logger.error("Python prediction script encountered an error. Exit code: {}", exitCode)
 		}
 
 		return lastLine ?: "{}"

@@ -1,10 +1,9 @@
 package aguPredictionSystem.server.http
 
-import aguPredictionSystem.server.InvokeScripts.invokePredictionAlgorithm
+import aguPredictionSystem.server.utils.InvokeScripts.invokePredictionAlgorithm
 import aguPredictionSystem.server.http.models.PredictionInputModel
 import aguPredictionSystem.server.http.models.PredictionOutputModel
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -12,15 +11,14 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * Controller for the prediction endpoint.
  */
-@RestController
+@RestController(URIs.Prediction.ROOT)
 class PredictionController {
 
 	/**
 	 * Generates a prediction for the given AGU.
 	 */
-	@PostMapping(URIs.Predict.BY_ID)
+	@PostMapping
 	fun generatePrediction(
-		@PathVariable aguCui: String,
 		@RequestBody predictionInputModel: PredictionInputModel
 	): ResponseEntity<*> {
 		val result = invokePredictionAlgorithm(
