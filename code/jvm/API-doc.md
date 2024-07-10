@@ -31,9 +31,9 @@ The API has the following endpoints:
 
 - **URL:** `/api/train`
 - **Method:** `POST`
-- - **Request Body:**
-    - `application/json`
-        - [Training Input Model](#training-input-model)
+    - **Request Body:**
+        - `application/json`
+            - [Training Input Model](#training-input-model)
 - **Success Response:**
     - **Content:**
         - `application/json`
@@ -42,16 +42,16 @@ The API has the following endpoints:
     ```shell
     curl -X GET "http://localhost:8080/api/train" -H "accept: application/json"
     ```
-  
+
 ### Predict
 
 #### Predict model
 
 - **URL:** `/api/predict`
 - **Method:** `POST`
-- - **Request Body:**
-    - `application/json`
-        - [Prediction Input Model](#prediction-input-model)
+    - **Request Body:**
+        - `application/json`
+            - [Prediction Input Model](#prediction-input-model)
 - **Success Response:**
     - **Content:**
         - `application/json`
@@ -60,7 +60,7 @@ The API has the following endpoints:
     ```shell
     curl -X GET "http://localhost:8080/api/predict" -H "accept: application/json"
     ```
-  
+
 ## Input Models
 
 ### Train
@@ -78,7 +78,7 @@ The API has the following endpoints:
       "previousConsumptions": "previousConsumptions"
     }
     ```
-  
+
 ### Predict
 
 #### Prediction Input Model
@@ -98,7 +98,7 @@ The API has the following endpoints:
       "intercept": 1.0
     }
     ```
-  
+
 ## Output Models
 
 ### Train

@@ -18,7 +18,8 @@ The backend is responsible for creating train models and afterward make predicti
 
 The application is structured as follows:
 
-- [/http](src/main/kotlin/aguPredictionSystem/server/http) - Contains the controller layer of the application using Spring Web MVC.
+- [/http](src/main/kotlin/aguPredictionSystem/server/http) - Contains the controller layer of the application using
+  Spring Web MVC.
 
 ### Controller Layer
 
@@ -31,12 +32,12 @@ and the requests are received as a JSON object (Input Models).
 The Controller Layer is organized as follows:
 
 - [controllers](src/main/kotlin/aguPredictionSystem/server/http) - Contains the controllers of the application.
-    - [/models](src/main/kotlin/aguPredictionSystem/server/http/models) - Contains the input and output models for data 
-        operations.
-
+    - [/models](src/main/kotlin/aguPredictionSystem/server/http/models) - Contains the input and output models for data
+      operations.
 
 ### Data Representation
 
 Due to the simplicity of the application, the data representation is only represented in the controller layer.
+
 - **Input/Output Models**: The input and output models are the representation of the data received and sent in the
   requests.

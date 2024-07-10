@@ -1,17 +1,19 @@
 package aguPredictionSystem.server.http
 
-import aguPredictionSystem.server.utils.InvokeScripts.invokeTrainingAlgorithm
 import aguPredictionSystem.server.http.models.TrainingInputModel
 import aguPredictionSystem.server.http.models.TrainingOutputModel
+import aguPredictionSystem.server.utils.InvokeScripts.invokeTrainingAlgorithm
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
  * Controller for the training endpoint.
  */
-@RestController(URIs.Train.ROOT)
+@RestController("Training")
+@RequestMapping(URIs.Train.ROOT)
 class TrainingController {
 
 	/**

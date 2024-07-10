@@ -6,5 +6,5 @@ package aguPredictionSystem.server.http.models
  * @param training The training.
  */
 data class TrainingOutputModel(
-	val training : String
+	val training: String
 )
