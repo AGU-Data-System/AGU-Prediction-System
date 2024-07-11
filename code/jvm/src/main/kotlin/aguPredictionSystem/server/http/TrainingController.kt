@@ -24,8 +24,8 @@ class TrainingController {
 		@RequestBody trainingInputModel: TrainingInputModel
 	): ResponseEntity<*> {
 		val result = invokeTrainingAlgorithm(
-			trainingInputModel.consumptions,
-			trainingInputModel.temperatures
+			trainingInputModel.temperatures,
+			trainingInputModel.consumptions
 		)
 
 		return ResponseEntity.ok(TrainingOutputModel(result))

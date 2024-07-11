@@ -19,28 +19,7 @@ object InvokeScripts {
 	 * @return The result of the training algorithm.
 	 */
 	fun invokeTrainingAlgorithm(temperatures: String, consumptions: String): String {
-		val pythonScript = "$BASE_SCRIPTS_PATH/TrainingModule.py"
-
-		val processBuilder = ProcessBuilder(PYTHON_COMMAND, pythonScript, temperatures, consumptions)
-
-		processBuilder.redirectErrorStream(true)
-		val process = processBuilder.start()
-
-		val reader = BufferedReader(InputStreamReader(process.inputStream))
-		var line: String?
-		var lastLine: String? = null
-		while (reader.readLine().also { line = it } != null) {
-			lastLine = line
-		}
-
-		val exitCode = process.waitFor()
-		if (exitCode == 0) {
-			logger.info("Python training script executed successfully.")
-		} else {
-			logger.error("Python training script encountered an error. Exit code: {}", exitCode)
-		}
-
-		return lastLine ?: "{}"
+		return invokeAlgorithm("$BASE_SCRIPTS_PATH/TrainingModule.py", temperatures, consumptions)
 	}
 
 	/**
@@ -58,16 +37,19 @@ object InvokeScripts {
 		coefficients: List<Double>,
 		intercept: Double
 	): String {
-		val pythonScript = "$BASE_SCRIPTS_PATH/PredictionResults.py"
+		val coefficientsString = coefficients.joinToString(",")
+		return invokeAlgorithm("$BASE_SCRIPTS_PATH/PredictionModule.py", temperatures, consumptions, coefficientsString, intercept.toString())
+	}
 
-		val processBuilder = ProcessBuilder(
-			PYTHON_COMMAND,
-			pythonScript,
-			temperatures,
-			consumptions,
-			coefficients.toString(),
-			intercept.toString()
-		)
+	/**
+	 * Invokes the algorithm.
+	 *
+	 * @param path The path to the script.
+	 * @param args The arguments.
+	 * @return The result of the algorithm.
+	 */
+	private fun invokeAlgorithm(path: String, vararg args: String): String {
+		val processBuilder = ProcessBuilder(PYTHON_COMMAND, path, *args)
 
 		processBuilder.redirectErrorStream(true)
 		val process = processBuilder.start()
@@ -76,15 +58,14 @@ object InvokeScripts {
 		var line: String?
 		var lastLine: String? = null
 		while (reader.readLine().also { line = it } != null) {
-			println(line)
 			lastLine = line
 		}
 
 		val exitCode = process.waitFor()
 		if (exitCode == 0) {
-			logger.info("Python prediction script executed successfully.")
+			logger.info("Python training script executed successfully.")
 		} else {
-			logger.error("Python prediction script encountered an error. Exit code: {}", exitCode)
+			logger.error("Python training script encountered an error. Exit code: {}", exitCode)
 		}
 
 		return lastLine ?: "{}"

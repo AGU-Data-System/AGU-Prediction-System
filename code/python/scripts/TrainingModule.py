@@ -18,8 +18,8 @@ class DataFrameColumns(Enum):
     MA_3A5 = 'MA_3a5'
     MA_3A9 = 'MA_3a9'
     DAY_TYPE = 'DayType'
-    T_MIN = 'minValue'
-    T_MAX = 'maxValue'
+    T_MIN = 'minTemps'
+    T_MAX = 'maxTemps'
 
 
 def calculate_moving_avg(d_frame, t_min, t_max):
@@ -109,7 +109,10 @@ def preprocess_data(temperatures, consumptions, path):
 
     :return: Preprocessed DataFrame.
     """
-    df_temp = temperatures[["dateHour", DataFrameColumns.T_MIN.value, DataFrameColumns.T_MAX.value]]
+    temperatures[DataFrameColumns.DATE.value] = pd.to_datetime(temperatures[DataFrameColumns.DATE.value])
+    consumptions[DataFrameColumns.DATE.value] = pd.to_datetime(consumptions[DataFrameColumns.DATE.value])
+
+    df_temp = temperatures[[DataFrameColumns.DATE.value, DataFrameColumns.T_MIN.value, DataFrameColumns.T_MAX.value]]
     df = consumptions[[DataFrameColumns.DATE.value, DataFrameColumns.CONSUMPTION.value]]
 
     df[DataFrameColumns.MA_3A5.value] = calculate_moving_avg(df, -5, -2)
@@ -164,3 +167,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# "{\"date\": [\"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\"], \"minTemps\": [18, 18, 16, 16, 16, 15, 14, 13, 17, 18], \"maxTemps\": [24, 23, 28, 28, 23, 21, 24, 30, 34, 36]}"
+
+# "{\"date\": [\"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\", \"2024-07-10\"], \"consumption\":[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]}"
