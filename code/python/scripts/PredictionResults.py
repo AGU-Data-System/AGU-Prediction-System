@@ -18,13 +18,13 @@ class DataFrameColumns(Enum):
 
     This Enum provides symbolic names for the DataFrame column names used in the script.
     """
-    DATE = 'Data'
-    CONSUMPTION = 'Consumption'
+    DATE = 'date'
+    CONSUMPTION = 'consumption'
     MA_3A5 = 'MA_3a5'
     MA_3A9 = 'MA_3a9'
     DAY_TYPE = 'DayType'
-    T_MIN = 'T_min'
-    T_MAX = 'T_max'
+    T_MIN = 'minTemps'
+    T_MAX = 'maxTemps'
 
 
 def moving_avg(df, t_min, t_max):
@@ -71,7 +71,7 @@ def day_type(df, path):
     :param df: DataFrame containing the data.
     :return: List indicating the type of each day.
     """
-    lista = [0] * len(df)
+    list_a = [0] * len(df)
     holly_days = load_file(path)
     for k, idx in enumerate(df.index):
         data_str = df.loc[idx, DataFrameColumns.DATE.value].strftime("%Y-%m-%d")
@@ -79,11 +79,11 @@ def day_type(df, path):
         for j in holly_days:
             holly_day = datetime.strptime(j, "%Y-%m-%d")
             if data.month == holly_day.month and data.day == holly_day.day:
-                lista[k] = 1
+                list_a[k] = 1
                 break
         if data.weekday() in [5, 6]:
-            lista[k] = 1
-    return lista
+            list_a[k] = 1
+    return list_a
 
 
 def load_data(temperatures_json, consumptions_json):
@@ -96,24 +96,29 @@ def load_data(temperatures_json, consumptions_json):
     """
     temperatures_data = json.loads(temperatures_json)
     consumptions_data = json.loads(consumptions_json)
-    return temperatures_data, consumptions_data
+    temperatures = pd.DataFrame(temperatures_data)
+    consumptions = pd.DataFrame(consumptions_data)
+    return temperatures, consumptions
 
 
-def preprocess_data(temperatures_data, consumptions_data, size):
+def preprocess_data(temperatures, consumptions, size):
     """
     Preprocess the data: convert dates, prepare DataFrame, and fill initial values.
 
-    :param temperatures_data: List of dictionaries containing temperature data.
-    :param consumptions_data: List of dictionaries containing consumption data.
+    :param temperatures: DataFrame containing temperature data.
+    :param consumptions: DataFrame containing consumption data.
     :param size: Size of the DataFrame.
     :return: Preprocessed DataFrame.
     """
-    temperature_dates = [datetime.strptime(entry['dateHour'], "%Y-%m-%d") for entry in temperatures_data]
-    temperature_min_values = [entry['minValue'] for entry in temperatures_data]
-    temperature_max_values = [entry['maxValue'] for entry in temperatures_data]
+    temperatures[DataFrameColumns.DATE.value] = pd.to_datetime(temperatures[DataFrameColumns.DATE.value])
+    temperature_dates = temperatures[DataFrameColumns.DATE.value].tolist()
+    temperature_min_values = temperatures[DataFrameColumns.T_MIN.value].tolist()
+    temperature_max_values = temperatures[DataFrameColumns.T_MAX.value].tolist()
 
-    consumption_dates = [datetime.strptime(entry['date'], "%Y-%m-%d") for entry in consumptions_data][:-1]
-    consumption_values = [entry['consumption'] for entry in consumptions_data][:-1]
+    consumptions[DataFrameColumns.DATE.value] = pd.to_datetime(consumptions[DataFrameColumns.DATE.value])
+
+    consumption_dates = consumptions[DataFrameColumns.DATE.value].tolist()
+    consumption_values = consumptions[DataFrameColumns.CONSUMPTION.value].tolist()
 
     df = pd.DataFrame({
         DataFrameColumns.DATE.value: [None] * size,
@@ -132,7 +137,6 @@ def preprocess_data(temperatures_data, consumptions_data, size):
         df.at[i, DataFrameColumns.DATE.value] = temperature_dates[i - 9]
         df.at[i, DataFrameColumns.T_MIN.value] = temperature_min_values[i - 9]
         df.at[i, DataFrameColumns.T_MAX.value] = temperature_max_values[i - 9]
-
     return df
 
 
@@ -180,3 +184,12 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# "{\"date\": [\"2024-07-10\", \"2024-07-11\", \"2024-07-12\", \"2024-07-13\", \"2024-07-14\", \"2024-07-15\",
+# \"2024-07-16\", \"2024-07-17\", \"2024-07-18\", \"2024-07-19\"], \"minTemps\": [18, 18, 16, 16, 16, 15, 14, 13, 17,
+# 18], \"maxTemps\": [24, 23, 28, 28, 23, 21, 24, 30, 34, 36]}"
+
+# "{\"date\": [\"2024-07-10\", \"2024-07-11\", \"2024-07-12\", \"2024-07-13\", \"2024-07-14\", \"2024-07-15\",
+# \"2024-07-16\", \"2024-07-17\", \"2024-07-18\", \"2024-07-19\"], \"consumption\":[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]}"
+
+# {"R^2 Score": NaN, "Coefficients": [0.0, 0.0, 0.0, 0.0], "Intercept": -1.0}
