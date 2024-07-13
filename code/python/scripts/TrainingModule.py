@@ -22,24 +22,16 @@ class DataFrameColumns(Enum):
     T_MAX = 'maxTemps'
 
 
-def calculate_moving_avg(d_frame, t_min, t_max):
+def calculate_moving_avg(d_frame, window):
     """
-    Calculate the moving average of the 'consumption' column over a specified range.
+    Calculate the moving average of the 'consumption' column over a specified window.
 
     :param d_frame: DataFrame containing the data.
-    :param t_min: Minimum range for calculating the moving average.
-    :param t_max: Maximum range for calculating the moving average.
+    :param window: Window size for calculating the moving average.
 
-    :return: List of moving average values.
+    :return: Series of moving average values.
     """
-    ma = []
-    for idx in range(len(d_frame)):
-        if idx >= abs(t_min):
-            media = d_frame.iloc[idx + t_min:idx + t_max + 1][DataFrameColumns.CONSUMPTION.value].mean()
-        else:
-            media = None
-        ma.append(media)
-    return ma
+    return d_frame[DataFrameColumns.CONSUMPTION.value].rolling(window=window, min_periods=1).mean()
 
 
 def load_file(file_path):
@@ -63,8 +55,8 @@ def determine_day_type(d_frame, path):
     """
     Determine the type of day (weekend or holiday).
 
-    :param path: Path for the holiday file.
     :param d_frame: DataFrame containing the data.
+    :param path: Path for the holiday file.
 
     :return: A list indicating the type of day (1 for weekend/holiday, 0 for weekday).
     """
@@ -103,9 +95,9 @@ def preprocess_data(temperatures, consumptions, path):
     """
     Preprocess the data: calculate moving averages, determine day types, and merge data.
 
-    :param path: Path for the holiday file.
     :param temperatures: DataFrame containing temperature data.
     :param consumptions: DataFrame containing consumption data.
+    :param path: Path for the holiday file.
 
     :return: Preprocessed DataFrame.
     """
@@ -115,13 +107,20 @@ def preprocess_data(temperatures, consumptions, path):
     df_temp = temperatures[[DataFrameColumns.DATE.value, DataFrameColumns.T_MIN.value, DataFrameColumns.T_MAX.value]]
     df = consumptions[[DataFrameColumns.DATE.value, DataFrameColumns.CONSUMPTION.value]]
 
-    df[DataFrameColumns.MA_3A5.value] = calculate_moving_avg(df, -5, -2)
-    df[DataFrameColumns.MA_3A9.value] = calculate_moving_avg(df, -9, -2)
+    df[DataFrameColumns.MA_3A5.value] = calculate_moving_avg(df, 5)
+    df[DataFrameColumns.MA_3A9.value] = calculate_moving_avg(df, 9)
     df[DataFrameColumns.DAY_TYPE.value] = determine_day_type(df, path)
 
-    df[DataFrameColumns.T_MIN.value] = df_temp[DataFrameColumns.T_MIN.value]
-    df[DataFrameColumns.T_MAX.value] = df_temp[DataFrameColumns.T_MAX.value]
+    df = df.merge(df_temp, on=DataFrameColumns.DATE.value, how='left')
+
+    print("DataFrame before dropping NaNs:")
+    print(df)
+
     df = df.dropna()
+
+    print("DataFrame after dropping NaNs:")
+    print(df)
+
     return df
 
 
@@ -175,11 +174,20 @@ if __name__ == "__main__":
 # "{\"date\": [\"2024-07-20\", \"2024-07-21\", \"2024-07-22\", \"2024-07-23\", \"2024-07-24\",
 # \"minTemps\": [18, 18, 16, 16, 16], \"maxTemps\": [24, 23, 28, 28, 23]}"
 
+# working input
+# "{\"date\": [\"2024-07-03\", \"2024-07-04\", \"2024-07-05\", \"2024-07-06\", \"2024-07-07\", \"2024-07-08\",\"2024-07-09\", \"2024-07-10\", \"2024-07-11\", \"2024-07-12\", \"2024-07-13\", \"2024-07-14\", \"2024-07-15\",\"2024-07-16\"], \"minTemps\": [16, 15, 17, 14, 13, 16, 15, 17, 14, 13, 16, 15, 17, 14], \"maxTemps\": [24, 23, 22,24, 25, 24, 23, 22, 24, 25, 24, 23, 22, 24]}"
+
 # Past consumptions
 # "{\"date\": [\"2024-07-11\", \"2024-07-12\", \"2024-07-13\", \"2024-07-14\", \"2024-07-15\",
 # \"2024-07-16\", \"2024-07-17\", \"2024-07-18\", \"2024-07-19\"], \"consumption\":[-1,-1,-1,-1,-1,-1,-1,-1,-1]}"
+
+# Working input
+# "{\"date\": [\"2024-07-03\", \"2024-07-04\", \"2024-07-05\", \"2024-07-06\", \"2024-07-07\", \"2024-07-08\",\"2024-07-09\", \"2024-07-10\", \"2024-07-11\"], \"consumption\":[-2,-3,-4,-2,-2,-3,-2,-3,-4]}"
 
 
 # Output:
 # Generated model
 # {"R^2 Score": NaN, "Coefficients": [0.0, 0.0, 0.0, 0.0], "Intercept": -1.0}
+
+# working output
+# {"R^2 Score": 0.7601530334519065, "Coefficients": [2.398851648470614, 1.4125466531591617, -0.042812821903454396,-0.22633592977142003], "Intercept": 9.127584881596157}
