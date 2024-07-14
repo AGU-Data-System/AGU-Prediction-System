@@ -23,12 +23,19 @@ class PredictionController {
 	fun generatePrediction(
 		@RequestBody predictionInputModel: PredictionInputModel
 	): ResponseEntity<*> {
-		val result = invokePredictionAlgorithm(
+		return when (val result = invokePredictionAlgorithm(
 			predictionInputModel.temperatures,
 			predictionInputModel.previousConsumptions,
 			predictionInputModel.coefficients,
 			predictionInputModel.intercept
-		)
-		return ResponseEntity.ok(PredictionOutputModel(result))
+		)) {
+			ERROR_IDENTITY -> ResponseEntity.badRequest().body(ERROR_MESSAGE)
+			else -> ResponseEntity.ok(PredictionOutputModel(result))
+		}
+	}
+
+	companion object {
+		private const val ERROR_IDENTITY = "ERROR"
+		private const val ERROR_MESSAGE = "Error while predicting the consumption"
 	}
 }

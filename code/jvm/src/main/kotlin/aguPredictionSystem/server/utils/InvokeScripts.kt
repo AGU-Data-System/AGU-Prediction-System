@@ -38,7 +38,13 @@ object InvokeScripts {
 		intercept: Double
 	): String {
 		val coefficientsString = coefficients.joinToString(",")
-		return invokeAlgorithm("$BASE_SCRIPTS_PATH/PredictionModule.py", temperatures, consumptions, coefficientsString, intercept.toString())
+		return invokeAlgorithm(
+			"$BASE_SCRIPTS_PATH/PredictionModule.py",
+			temperatures,
+			consumptions,
+			coefficientsString,
+			intercept.toString()
+		)
 	}
 
 	/**
@@ -62,12 +68,16 @@ object InvokeScripts {
 		}
 
 		val exitCode = process.waitFor()
-		if (exitCode == 0) {
+		return if (exitCode == 0) {
 			logger.info("Python training script executed successfully.")
+			val result = lastLine ?: "ERROR"
+			if (!result.contains("date") || !result.contains("Coefficients"))
+				"ERROR"
+			else
+				result
 		} else {
 			logger.error("Python training script encountered an error. Exit code: {}", exitCode)
+			"ERROR"
 		}
-
-		return lastLine ?: "{}"
 	}
 }

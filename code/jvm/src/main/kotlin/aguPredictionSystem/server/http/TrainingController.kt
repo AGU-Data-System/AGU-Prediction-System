@@ -23,11 +23,17 @@ class TrainingController {
 	fun generateTraining(
 		@RequestBody trainingInputModel: TrainingInputModel
 	): ResponseEntity<*> {
-		val result = invokeTrainingAlgorithm(
+		return when (val result = invokeTrainingAlgorithm(
 			trainingInputModel.temperatures,
 			trainingInputModel.consumptions
-		)
+		)) {
+			ERROR_IDENTITY -> ResponseEntity.badRequest().body(ERROR_MESSAGE)
+			else -> ResponseEntity.ok(TrainingOutputModel(result))
+		}
+	}
 
-		return ResponseEntity.ok(TrainingOutputModel(result))
+	companion object {
+		private const val ERROR_IDENTITY = "ERROR"
+		private const val ERROR_MESSAGE = "Error while training the model"
 	}
 }

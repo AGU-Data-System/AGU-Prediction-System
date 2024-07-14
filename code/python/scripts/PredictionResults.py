@@ -111,7 +111,6 @@ def preprocess_data(temperatures, consumptions, size):
     temperature_max_values = temperatures[DataFrameColumns.T_MAX.value].tolist()
 
     consumptions[DataFrameColumns.DATE.value] = pd.to_datetime(consumptions[DataFrameColumns.DATE.value])
-    consumption_dates = consumptions[DataFrameColumns.DATE.value].tolist()
     consumption_values = consumptions[DataFrameColumns.CONSUMPTION.value].tolist()
 
     df = pd.DataFrame({
@@ -126,9 +125,9 @@ def preprocess_data(temperatures, consumptions, size):
 
     for i in range(9):
         df.at[i, DataFrameColumns.CONSUMPTION.value] = consumption_values[i]
-        df.at[i, DataFrameColumns.DATE.value] = consumption_dates[i]
+        df.at[i, DataFrameColumns.DATE.value] = temperature_dates[i]
     for i in range(9, size):
-        df.at[i, DataFrameColumns.DATE.value] = temperature_dates[i - 9]
+        df.at[i, DataFrameColumns.DATE.value] = temperature_dates[i]
         df.at[i, DataFrameColumns.T_MIN.value] = temperature_min_values[i - 9]
         df.at[i, DataFrameColumns.T_MAX.value] = temperature_max_values[i - 9]
     return df
@@ -201,11 +200,12 @@ if __name__ == "__main__":
 # "consumption":-1.0}, {"date":"2024-07-23", "consumption":-1.0}, {"date":"2024-07-24", "consumption":-1.0}]
 
 # working input
+#
 # "{\"date\": [\"2024-07-03\", \"2024-07-04\", \"2024-07-05\", \"2024-07-06\", \"2024-07-07\", \"2024-07-08\",
 # \"2024-07-09\", \"2024-07-10\", \"2024-07-11\", \"2024-07-12\", \"2024-07-13\", \"2024-07-14\", \"2024-07-15\",
 # \"2024-07-16\"], \"minTemps\": [16, 15, 17, 14, 13, 16, 15, 17, 14, 13, 16, 15, 17, 14], \"maxTemps\": [24, 23, 22,
 # 24, 25, 24, 23, 22, 24, 25, 24, 23, 22, 24]}"
-
+#
 # "{\"date\": [\"2024-07-03\", \"2024-07-04\", \"2024-07-05\", \"2024-07-06\", \"2024-07-07\", \"2024-07-08\",
 # \"2024-07-09\", \"2024-07-10\", \"2024-07-11\"], \"consumption\":[-2,-3,-4,-2,-2,-3,-2,-3,-4]}"
 
@@ -215,7 +215,7 @@ if __name__ == "__main__":
 
 
 # working output
-
-# [{"date":"2024-07-03", "consumption":-3.6529593847}, {"date":"2024-07-04", "consumption":-3.8243888935},
-# {"date":"2024-07-05", "consumption":-3.9034104583}, {"date":"2024-07-06", "consumption":-2.7893523121},
-# {"date":"2024-07-07", "consumption":-3.1832686528}]
+#
+# [{"date":"2024-07-12", "consumption":-3.6529593847}, {"date":"2024-07-13", "consumption":-2.4118422404},
+# {"date":"2024-07-14", "consumption":-2.1143649309}, {"date":"2024-07-15", "consumption":-3.3485495564},
+# {"date":"2024-07-16", "consumption":-3.8915138116}]
