@@ -154,7 +154,7 @@ def main():
     """
     temperature_json = sys.argv[1]
     consumption_json = sys.argv[2]
-    holidays_file_path = 'holidays.txt'
+    holidays_file_path = './holidays.txt'
 
     temperatures, consumptions = load_data_from_json(temperature_json, consumption_json)
     df = preprocess_data(temperatures, consumptions, holidays_file_path)
@@ -178,6 +178,11 @@ if __name__ == "__main__":
 # "{\"date\": [\"2024-07-11\", \"2024-07-12\", \"2024-07-13\", \"2024-07-14\", \"2024-07-15\",
 # \"2024-07-16\", \"2024-07-17\", \"2024-07-18\", \"2024-07-19\"], \"consumption\":[-1,-1,-1,-1,-1,-1,-1,-1,-1]}"
 
+# Output:
+# Generated model
+# {"R^2 Score": NaN, "coefficients": [0.0, 0.0, 0.0, 0.0], "intercept": -1.0}
+
+
 # working input
 #
 # "{\"date\": [\"2024-07-03\", \"2024-07-04\", \"2024-07-05\", \"2024-07-06\", \"2024-07-07\", \"2024-07-08\",
@@ -185,12 +190,7 @@ if __name__ == "__main__":
 # [24, 23, 22, 24, 25, 24, 23, 22, 24]}"
 #
 # "{\"date\": [\"2024-07-03\", \"2024-07-04\", \"2024-07-05\", \"2024-07-06\", \"2024-07-07\", \"2024-07-08\",
-# \"2024-07-09\", \"2024-07-10\", \"2024-07-11\"], \"consumption\":[-2,-3,-4,-2,-2,-3,-2,-3,-4]}"
-
-
-# Output:
-# Generated model
-# {"R^2 Score": NaN, "coefficients": [0.0, 0.0, 0.0, 0.0], "intercept": -1.0}
+# \"2024-07-09\", \"2024-07-10\", \"2024-07-11\"], \"consumption\":[2,3,4,2,2,3,2,3,4]}"
 
 # working output
 #

@@ -6,6 +6,7 @@
 - [Application Architecture](#application-architecture)
     - [Controller Layer](#controller-layer)
     - [Data Representation](#data-representation)
+    - [Error Handling](#error-handling)
 
 ## Introduction
 
@@ -41,3 +42,7 @@ Due to the simplicity of the application, the data representation is only repres
 
 - **Input/Output Models**: The input and output models are the representation of the data received and sent in the
   requests.
+
+### Error Handling
+
+The used error handling is done by setting strings, and according to them, giving the user either 400 or 200 responses.

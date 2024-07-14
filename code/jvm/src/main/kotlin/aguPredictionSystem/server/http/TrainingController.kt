@@ -24,8 +24,8 @@ class TrainingController {
 		@RequestBody trainingInputModel: TrainingInputModel
 	): ResponseEntity<*> {
 		return when (val result = invokeTrainingAlgorithm(
-			trainingInputModel.temperatures,
-			trainingInputModel.consumptions
+			trainingInputModel.temperatures.replace("\"", "\\\""),
+			trainingInputModel.consumptions.replace("\"", "\\\"")
 		)) {
 			ERROR_IDENTITY -> ResponseEntity.badRequest().body(ERROR_MESSAGE)
 			else -> ResponseEntity.ok(TrainingOutputModel(result))

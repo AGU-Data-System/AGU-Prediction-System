@@ -71,10 +71,12 @@ object InvokeScripts {
 		return if (exitCode == 0) {
 			logger.info("Python training script executed successfully.")
 			val result = lastLine ?: "ERROR"
-			if (!result.contains("date") || !result.contains("Coefficients"))
-				"ERROR"
-			else
+			if (result.split(",", " ", "{", ":").contains("\"date\"") || result.split(",", " ")
+					.contains("\"coefficients\":")
+			)
 				result
+			else
+				"ERROR"
 		} else {
 			logger.error("Python training script encountered an error. Exit code: {}", exitCode)
 			"ERROR"

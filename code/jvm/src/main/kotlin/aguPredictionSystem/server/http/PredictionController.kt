@@ -1,7 +1,7 @@
 package aguPredictionSystem.server.http
 
 import aguPredictionSystem.server.http.models.PredictionInputModel
-import aguPredictionSystem.server.http.models.PredictionOutputModel
+import aguPredictionSystem.server.http.models.PredictionListOutputModel
 import aguPredictionSystem.server.utils.InvokeScripts.invokePredictionAlgorithm
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -24,13 +24,13 @@ class PredictionController {
 		@RequestBody predictionInputModel: PredictionInputModel
 	): ResponseEntity<*> {
 		return when (val result = invokePredictionAlgorithm(
-			predictionInputModel.temperatures,
-			predictionInputModel.previousConsumptions,
+			predictionInputModel.temperatures.replace("\"", "\\\""),
+			predictionInputModel.previousConsumptions.replace("\"", "\\\""),
 			predictionInputModel.coefficients,
 			predictionInputModel.intercept
 		)) {
 			ERROR_IDENTITY -> ResponseEntity.badRequest().body(ERROR_MESSAGE)
-			else -> ResponseEntity.ok(PredictionOutputModel(result))
+			else -> ResponseEntity.ok(PredictionListOutputModel(result))
 		}
 	}
 
