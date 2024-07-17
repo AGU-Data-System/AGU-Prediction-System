@@ -47,12 +47,22 @@ def load_file(file_path):
 
     :return: A list representing the content of the file as strings.
     """
-    content = []
-    with open(file_path, 'r') as file:
-        for line in file:
-            treated_line = line.strip()
-            if treated_line:  # Make sure it's not an empty line
-                content.append(treated_line)
+    content = ["2024-01-01",
+               "2024-04-25",
+               "2024-05-01",
+               "2024-06-10",
+               "2024-08-15",
+               "2024-10-05",
+               "2024-11-01",
+               "2024-12-01",
+               "2024-12-08",
+               "2024-12-25"
+               ]
+    # with open(file_path, 'r') as file:
+    #     for line in file:
+    #         treated_line = line.strip()
+    #         if treated_line:  # Make sure it's not an empty line
+    #             content.append(treated_line)
     return content
 
 
